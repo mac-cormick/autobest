@@ -1,0 +1,17 @@
+function offLink(ob){ob.href='#';}
+function showLink(ob, link)
+{
+	var arStrs= link.split('#');	
+	var arNums = arStrs[1].split('|');
+	var link = '';
+	if(arNums.length == 6)
+	{
+		var ctype = arNums[arNums.length-1];
+		arNums.splice(arNums.length-1, 1);
+		link = arStrs[0]+arNums.join('/')+'/?ctype='+ctype;
+	}
+	else
+		link = arStrs[0]+arNums.join('/')+'/';
+
+	ob.href=link;	
+}

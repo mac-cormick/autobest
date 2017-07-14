@@ -1,0 +1,71 @@
+	var showedItem = '';
+	function ShowHideComplects(table_id) {
+		if (document.getElementById(table_id).style.display == 'none')
+			document.getElementById(table_id).style.display = 'block';
+		else
+			document.getElementById(table_id).style.display = 'none';
+			
+		if (showedItem != '' && showedItem != table_id)
+			document.getElementById(showedItem).style.display = 'none';
+			
+		showedItem = table_id;
+	}
+
+	function show_calc(el){
+		var before_show = 300;
+		var before_hide = 200;		
+		
+		Handler = function(el){
+					var show_slot;
+					var hide_slot;
+
+					var _hide = function(){jQuery(el).siblings("div").hide()}; 
+					var _show = function(){jQuery(el).siblings("div").show();};
+					
+					this.show_sibl = function(){this.stop_show();
+												this.stop_hide();
+												show_slot = window.setTimeout(_show,before_show);												
+										};
+					this.hide_sibl = function(){this.stop_show();
+												hide_slot = window.setTimeout(_hide,before_hide);
+										};
+					
+					this.stop_show = function(){window.clearTimeout(show_slot);};
+					this.stop_hide = function(){window.clearTimeout(hide_slot)}
+			}
+		var handler = new Handler(el);
+
+		jQuery(el).mouseover(function(){
+			if(jQuery(el).parent().attr('usd'))
+			{
+				jQuery.post('/?a=Catalog~AjaxNewCarsCalc', {'usd':jQuery(el).parent().attr('usd'),'euro':jQuery(el).parent().attr('euro'),'uah':jQuery(el).parent().attr('uah'),'cg_id':jQuery(el).parent().attr('cg_id')}, function(data){
+					jQuery(el).parent().append(data);
+					jQuery(el).parent().removeAttr('usd');
+					jQuery(el).parent().find('.price_calc-in').mouseenter(function(){handler.show_sibl();});
+					jQuery(el).parent().find('.price_calc-in').mouseleave(function(){handler.hide_sibl();});
+				});
+			}
+			handler.show_sibl();
+			jQuery("#price_model_id").val(jQuery(el).attr('id').replace('p_',''));
+			jQuery('.price_calc_active').removeClass('price_calc_active').addClass('price_calc_passive');
+			jQuery('#c_usd_'+jQuery(el).attr('id').replace('p_','')).removeClass('price_calc_passive').addClass('price_calc_active');
+			var usd_price = jQuery(el).attr('val_usd');
+			jQuery('#price_value_'+jQuery(el).attr('id').replace('p_','')).html(usd_price);
+			
+		});
+		jQuery(el).mouseleave(function(){handler.hide_sibl();});				
+
+	};			
+	jQuery(document).ready(function(){		
+		
+		jQuery('.use_calc').each(function(){show_calc(jQuery(this))});
+		jQuery('.price_calc').css('overflow', 'visible');
+		jQuery('.list_roll-in li').css('overflow', 'visible');
+		
+	});
+	function changeCurrency(currency_id) {
+		var model_id = jQuery("#price_model_id").val();
+		jQuery('#price_value_'+model_id).html(jQuery('.val_'+currency_id+'_'+model_id).val());
+		jQuery('.price_calc_active').removeClass('price_calc_active').addClass('price_calc_passive');
+		jQuery('#c_'+currency_id+'_'+model_id).removeClass('price_calc_passive').addClass('price_calc_active');
+	}

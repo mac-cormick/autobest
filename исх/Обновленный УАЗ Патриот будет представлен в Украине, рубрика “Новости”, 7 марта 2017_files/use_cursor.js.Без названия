@@ -1,0 +1,33 @@
+//всплывающий_divka
+function make_iactive(el){
+	var before_show = 300;
+	var before_hide = 300;
+	Handler = function(el){
+				var show_slot;
+				var hide_slot;
+
+				var _hide = function(){jQuery(el).siblings("div").hide()}; 
+				var _show = function(){jQuery(el).siblings("div").show()};
+				
+				this.show_sibl = function(){this.stop_show();
+											this.stop_hide();
+											show_slot = window.setTimeout(_show,before_show);
+									};
+				this.hide_sibl = function(){this.stop_show();
+											hide_slot = window.setTimeout(_hide,before_hide);
+									};
+				
+				this.stop_show = function(){window.clearTimeout(show_slot);};
+				this.stop_hide = function(){window.clearTimeout(hide_slot)}
+		}
+	var handler = new Handler(el);
+
+	jQuery(el).mouseover(function(){handler.show_sibl()});
+	jQuery(el).mouseleave(function(){handler.hide_sibl();});
+
+	jQuery(el).siblings('div').mouseenter(function(){handler.show_sibl();});
+	jQuery(el).siblings('div').mouseleave(function(){handler.hide_sibl();});
+};													
+jQuery(function(){
+    jQuery('.use_cursor').each(function(){make_iactive(jQuery(this))});
+});

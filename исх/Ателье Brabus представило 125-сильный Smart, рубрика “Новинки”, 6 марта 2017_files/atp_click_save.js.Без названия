@@ -1,0 +1,29 @@
+function clickSave(click_type_path)
+{
+	/*
+	new Ajax('/ajax_click.html', {
+		method: 'get',
+		data: {
+			click_type_path: click_type_path,
+			for_tp: 1
+		}
+	}).request();
+	*/
+	jQuery.get('/ajax_click.html', {'click_type_path':click_type_path, 'for_tp':1});
+	return false;
+}
+
+function showSave(click_type_path)
+{
+	/*
+	new Ajax('?a=click~AjaxShow', {
+		method: 'get',
+		data: {
+			click_type_path: click_type_path
+		}
+	}).request();
+	*/
+	jQuery.get('?a=click~AjaxShow', {'click_type_path':click_type_path});
+	return false;
+}
+

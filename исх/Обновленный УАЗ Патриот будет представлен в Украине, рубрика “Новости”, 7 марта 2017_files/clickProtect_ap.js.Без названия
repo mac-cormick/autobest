@@ -1,0 +1,57 @@
+function onLink(ob,link){ob.href=link;}
+function offLink(ob){ob.href='#';}
+
+function _getObKey(regtext, num)
+{
+	var key = regtext.charAt(9) + regtext.charAt(4);
+	
+	if (num >= 1) {
+		regtext += '_ae';
+	} 
+	else {
+		regtext += '_ar';
+	}
+	
+	key += regtext.charAt(7) + regtext.charAt(11);
+		
+	return key;
+}
+
+function _getOnlSufix(regtext, num)
+{
+	var sufix = regtext.charAt(18) + regtext.charAt(9) + regtext.charAt(6);
+	for (i=0; i<=num; i++) {
+		regtext += 'C';
+	}
+	sufix += regtext.charAt(30) + regtext.charAt(32);
+	return sufix;
+}
+
+function onLink2(ob, link)
+{
+	var oldLink = link;
+	
+	var regtext = "$([^rntephof]+)/t[.,:;]{0,1}[emuly]^";
+	var num = 1;
+	var key = _getObKey(regtext, num);
+	
+	if (link.indexOf('#') > 0) { 
+		var sufix = _getOnlSufix(regtext, num);
+		var arStrs= link.split('#');
+		var link = arStrs[0];
+		
+		var arNums = arStrs[1].split('|');
+		var temp = '';
+		for(i=0; i<arNums.length; i++) {
+			if (arNums[i].charAt(0) != '?') {
+				temp += arNums[i] + '/';
+			}
+			else {
+				sufix += arNums[i];
+			}
+		}
+		link += 'shops/go/' + temp.substring(0, temp.length-1);
+	}
+	
+	ob[key] = link;
+}

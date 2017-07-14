@@ -1,0 +1,162 @@
+var _addHandler = function addHandler(object, event, handler, useCapture)
+{
+    if (object.addEventListener)
+	{
+        object.addEventListener(event, handler, useCapture ? useCapture : false);
+    }
+	else if (object.attachEvent)
+	{
+        object.attachEvent('on' + event, handler);
+    }
+	else
+	{
+		alert("Add handler is not supported");
+	};
+};
+
+var _cancelBubbling = function cancelBubbling(evt)
+{
+	try
+	{
+		evt = evt || window.event;
+		if(evt)
+			evt.cancelBubble = true;
+		// window.event.cancelBubble = true; return false;
+	} catch (e) { ; }
+	return false;
+};
+
+
+function NavigateThroughPaginator (/* Event */ event)
+{
+	if (!document.getElementById) return;
+	if (window.event) event = window.event;
+	var links = null;
+	var link = null;
+	var href = null;
+	if (typeof jQuery != 'undefined' && event.ctrlKey) {
+		switch (event.keyCode ? event.keyCode : event.which ? event.which : null)
+		{
+			case 0x25:
+				links = jQuery('A[rel="PaginatorPrevPage"]');
+				// link = document.getElementById ('PaginatorPrevLink');
+				break;
+			case 0x27:
+				links = jQuery('A[rel="PaginatorNextPage"]');
+				// link = document.getElementById ('PaginatorNextLink');
+				break;
+			/* case 0x26:
+				link = document.getElementById ('PaginatorUpLink');
+				break;
+			case 0x28:
+				link = document.getElementById ('PaginatorDownLink');
+				break; */
+			/* case 0x24:
+				href = '/';
+				break; */
+			/*
+			default:
+				event.cancelBubble = false;
+				event.returnValue = true;
+				break; */
+		};
+		
+		if(links && (links.size() > 0 )) {
+			link = links.get(0);
+		};
+		
+		if (link && link.href && typeof link == "object") {
+			jQuery(link).toggleClass('current');
+			if(link.onclick == undefined)
+				document.location = link.href;
+			else if	(link.onclick())
+				document.location = link.href;
+			// var  r = link.fireEvent('onclick');
+			// alert('r='+r+"\ntypef = "+typeof r);
+		} else if (link && link.href) {
+			document.location = link.href;
+		} else if(href) {
+			document.location = href;
+		} else {
+		};
+		
+		link = null;
+		links = null;
+	};
+};
+
+function _onMarketLoad123() {
+	// alert('market load');
+	
+	// if(typeof jQuery.historyInit == 'function') alert('_onMarketLoad :: historyInit'); // тут работает
+	// else alert('_onMarketLoad :: historyInit NOT FOUND'+"\n"+typeof jQuery.historyInit);
+	/*
+	if(typeof market == 'undefined') 
+		alert('market NOT FOUND');
+	*/
+	/* */
+	if(document.getElementById('market-Selection')) {
+		// alert('market.ini()');
+		market.init();
+		
+	} else if(typeof market != 'undefined') {
+		// alert('market.setCatalogURL()');
+		market.setCatalogURL();
+		// alert('market.setAjaxCompare()');
+		market.setAjaxCompare();
+	}
+};
+
+function cmgOnLoadPage(/* Array */ onLoadHandlers) {
+	/* */
+	// alert('cmgOnLoadPage');
+	try {
+		if(typeof jQuery != 'undefined') {
+			// jQuery.noConflict();
+			if(typeof mootols_src == 'string') {
+				jQuery.getScript(mootols_src, function(data, textStatus) { setTimeout(
+					function(onLoadHandlers) { return function() {
+						for(var i =0; i < onLoadHandlers.length; ++i)
+							onLoadHandlers[i]();
+					}} (onLoadHandlers), 300 )});
+			} else {
+				for(var i =0; i < onLoadHandlers.length; ++i)
+				{
+					onLoadHandlers[i]();
+				}
+					
+				
+			}
+			// jQuery.ajaxSetup({cache: true, async : false});
+			// if(typeof jQuery.historyInit == 'function') alert('historyInit'); // тут работает
+			// if(typeof jQuery.historyInit == 'function') alert('1- cmgOnLOadPage :: historyInit'); // тут работает
+			// else alert('1- cmgOnLoadPage :: historyInit NOT FOUND'+"\n"+typeof jQuery.historyInit);
+			// alert('_onLoadMarket123()');
+			// try {_onMarketLoad123(); } catch(e) { alert('_onLoadMarket error '+e); }
+			_onMarketLoad123();
+		} else {
+			for(var i =0; i < onLoadHandlers.length; ++i)
+				onLoadHandlers[i]();
+		}
+	} catch(e) { 
+			alert(">>> Error Message: " + e.message +"\n"
+				  + "Error Code: " + (e.number & 0xFFFF) + "\n"
+				  + "Error Name: " + e.name);
+    }
+	// window.fireEvent('resize');
+	// alert('Show BannerDivs');
+	
+	var divs = document.getElementsByTagName('DIV');
+	for(var i in divs) {
+		if(/delayedBanner/.test (divs[i].className) ) {
+			// alert(divs[i].className+' display='+divs[i].style.display);
+			// alert(divs[i].style.display);
+			divs[i].style.display = 'block';
+		}
+	}
+}
+
+// jQuery.ready(_onLoadWindow);
+
+// _addHandler(document,'readystatechange', function(evt){if(document.readyState == "complete") _onLoadWindow();});
+_addHandler(document,'keydown', NavigateThroughPaginator, false);

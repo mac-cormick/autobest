@@ -1,0 +1,87 @@
+/*==========  Desktop First  ========== */
+/* Large Devices, Wide Screens */
+@media only screen and (max-width: 1200px) {
+  /* */
+  .klass {
+    padding-top: 30px; } }
+/* Medium Devices, Desktops */
+@media only screen and (max-width: 992px) {
+  /* */
+  .top-mnu ul {
+    display: none; }
+
+  .header-wrap {
+    padding-bottom: 25px; } }
+/* Small Devices, Tablets */
+@media only screen and (max-width: 768px) {
+  /* */
+  .first-price {
+    float: none; }
+
+  .sec-price {
+    margin-top: 30px; }
+
+  .type {
+    margin-right: 20px; } }
+/* Extra Small Devices, Phones */
+@media only screen and (max-width: 480px) {
+  /* */
+  .contacts p {
+    font-size: 12px; }
+  .contacts i {
+    margin-top: 1px;
+    margin-right: 5px; }
+  .contacts span {
+    float: left;
+    display: block;
+    margin: 0 5px;
+    font-size: 20px;
+    margin-top: -4px; }
+
+  .enter-login {
+    font-size: 24px;
+    position: absolute;
+    top: 120px; }
+
+  .articles h3 {
+    font-size: 16px; }
+  .articles p {
+    font-size: 14px; }
+
+  .type {
+    float: none; }
+
+  .first-price {
+    margin: 0;
+    margin-top: 30px; } }
+/* Custom, iPhone Retina */
+@media only screen and (max-width: 320px) {
+  /* */ }
+/*==========  Mobile First  ========== */
+/* Custom, iPhone Retina */
+@media only screen and (min-width: 320px) {
+  /* */ }
+/* Extra Small Devices, Phones */
+@media only screen and (min-width: 480px) {
+  /* */ }
+/* Small Devices, Tablets */
+@media only screen and (min-width: 768px) {
+  /* */ }
+/* Medium Devices, Desktops */
+@media only screen and (min-width: 992px) {
+  /* */
+  .toggle-mnu {
+    display: none; }
+
+  .toggle-mnu, #mobile-menu, html.mm-blocking #mm-blocker {
+    display: none; }
+
+  html.mm-opening .mm-slideout {
+    -webkit-transform: translate(0px, 0px);
+        -ms-transform: translate(0px, 0px);
+            transform: translate(0px, 0px); } }
+/* Large Devices, Wide Screens */
+@media only screen and (min-width: 1200px) {
+  /* */ }
+
+/*# sourceMappingURL=media.css.map */

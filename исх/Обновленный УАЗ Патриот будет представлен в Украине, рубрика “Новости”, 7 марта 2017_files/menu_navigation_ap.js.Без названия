@@ -1,0 +1,138 @@
+jQuery(function(){
+
+	var show, hide, imgid, top_margin;
+
+	jQuery('.ddm').mouseenter(function(){
+		jQuery('.dd_menu').css('display', 'none');
+
+		jQuery('.ddm').removeClass('dd_hv');
+
+		clearTimeout(hide);
+		var ddm = jQuery(this);
+		var dd_menu = ddm.find('.dd_menu');
+		show = window.setTimeout(function(){
+			//dd_menu.css('display', 'block');
+			dd_menu.slideDown(200);
+			ddm.addClass('dd_hv');
+		}, 250);
+		if(jQuery(this).find('.dd_menu').attr('id') == 'nav_sub_1' && jQuery(this).find('.loader').length > 0){
+			jQuery.post('/?a=Inf~AjaxGetReadingRoomData', {}, function(data){
+				jQuery('#readers_room').html(data);
+			});
+		}
+		if(jQuery(this).find('.dd_menu').attr('id') == 'nav_sub_2' && jQuery(this).find('.loader').length > 0){
+			jQuery(this).find('#cat_nav').css({'padding-top':'75px', 'padding-bottom':'75px', 'width':'100%', 'text-align':'center'});
+			jQuery.get('/?a=Catalog~AjaxShowNewCarsNav', {}, function(data){
+				jQuery('#cat_nav').html(data).removeAttr('style');
+			});
+		}
+	}).mouseleave(function(){
+		clearTimeout(show);
+		var ddm = jQuery(this);
+		var dd_menu = ddm.find('.dd_menu');
+		hide = window.setTimeout(function(){
+			//dd_menu.css('display', 'none');
+			dd_menu.slideUp(200);
+			ddm.removeClass('dd_hv');
+		}, 200);
+	});
+
+	// Убираем тайтлы при наведении
+	jQuery('#nav a, .sub_menu a').hover(function() {
+		curr_attr = jQuery(this).attr('title');
+		jQuery(this).removeAttr('title');
+	}, function (){
+		jQuery(this).attr('title', curr_attr);
+	});
+
+	// Расставляем подменю под пунктами
+	var sub_block = new Array();
+	sub_block[0] = ['668px','0'];
+	sub_block[1] = ['670px','-174px'];
+	var arr_ddm = jQuery('.ddm');
+	jQuery.each(arr_ddm, function(i) {
+		jQuery(this).append(jQuery('#nav_sub_' + (i+1)));
+		if (sub_block[i])
+			jQuery(this).find('.dd_menu').css({'width': sub_block[i][0], 'display': 'none', 'margin-left': sub_block[i][1]});
+	});
+
+	// Скролл хедера (меню)
+	var top_m = 15;
+	pageMarginTop();
+	headerScroll();
+
+	jQuery(window).resize(function() {
+		pageMarginTop();
+		headerScroll();
+	});
+	jQuery(window).scroll(function() {
+		headerScroll();
+	});
+
+	function pageMarginTop() {
+		if (jQuery(window).width() < 990) {
+			top_m = 0;
+		} else {
+			top_m = 15;
+		}
+	}
+	function headerScroll() {
+		var top = jQuery(document).scrollTop();
+		var hd = jQuery('#hd');
+		if (jQuery('body').hasClass('ap_branding')) {
+			top_margin = 90;
+			/*временные строки*/
+			var style_detect = jQuery('head>style:first');
+			if (jQuery(window).width() >= 990) {
+				
+				var branding_img = jQuery('.ap_branding').attr('style').replace('background: ','').replace(';','');
+				//jQuery('.ap_branding>a:first').css({'background':branding_img, 'z-index':'999'});
+				jQuery('.ap_branding>a:first').css({'background':'transparent', 'z-index':'0'});
+				//top = 0;
+				
+				hd.css({'max-width':'990px', 'left':'inherit', 'margin-left':'0'});
+				if (style_detect.text().indexOf('ap_branding') > 0) {
+					//style_detect.html('body.ap_branding{padding-top:90px;} body.ap_branding #hd{top:90px;}');
+					style_detect.html('body.ap_branding{padding-top:90px;} body.ap_branding #hd{top:0;}');
+				}
+			} else {
+				jQuery('.ap_branding>a:first').css({'background':'transparent', 'z-index':'0'});
+				top = 90;
+				//console.log(style_detect.text().indexOf('ap_branding'));
+				if (style_detect.text().indexOf('ap_branding') > 0) {
+					style_detect.html('body.ap_branding{padding-top:0;} body.ap_branding #hd{top:0;}');
+				}
+				
+			}
+			/*****/
+		}
+		else
+			top_margin = top_m;
+		if (top > top_margin) {
+			if (!hd.hasClass('scroll'))
+				hd.addClass('scroll').removeAttr('style');
+			/*временные строки*/
+			if (jQuery(window).width() >= 990) {
+				hd.css({'max-width':'990px', 'left':'50%', 'margin-left': '-495px'});
+			} else {
+				hd.css({'max-width':'990px', 'left':'inherit', 'margin-left':'0'});
+			}
+			/*****/
+		} else {
+			if (hd.hasClass('scroll'))
+				hd.removeClass('scroll');
+			top = top_margin - top;
+			hd.css('top', top+'px');
+			/*временные строки*/
+			if (jQuery(window).width() >= 990) {
+				hd.css({'left':'50%', 'margin-left':'-495px'});
+			} else {
+				hd.css({'max-width':'990px', 'left':'inherit', 'margin-left':'0'});
+			}
+			/*****/
+		}
+	}
+	
+	// Мобильное меню
+
+});

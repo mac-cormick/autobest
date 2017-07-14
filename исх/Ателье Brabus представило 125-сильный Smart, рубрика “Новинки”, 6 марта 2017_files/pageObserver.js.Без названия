@@ -1,0 +1,306 @@
+/**
+* файлик котрый будет наблюдать за загрузкой страницы
+* пример daemon'a - он никому не мешает, и ему никто не мешает ;)
+*/
+
+var pageObserver = (function() {
+	/**
+	* указатель на сам private объект
+	*/
+	var /* private */ self = {
+		className : 'pageObserverObject',
+		timeout   : 60, // врем€ после которого будем дергать page::onLoad
+		1:1
+	};
+	
+	var initXMLHttpRequest = function()
+	{
+		if (XMLHttpRequest == undefined) {
+			XMLHttpRequest = function() {
+			try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); }
+				catch(e) {}
+			try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); }
+				catch(e) {}
+			try { return new ActiveXObject("Msxml2.XMLHTTP"); }
+				catch(e) {}
+			try { return new ActiveXObject("Microsoft.XMLHTTP"); }
+				catch(e) {}
+			throw new Error("This browser does not support XMLHttpRequest.");
+			};
+		}
+		return null;
+	};
+
+	var RunHTMLScript = function(container) {
+		var divContent = container.childNodes;
+		for (var i = 0; i < divContent.length; i++) {
+			requestItem = divContent.item(i);
+			if (requestItem.tagName) {
+				// alert(requestItem.tagName);
+				if (requestItem.tagName.toUpperCase() == 'SCRIPT') { 
+					alert('eval('+requestItem.text+')');
+					eval(requestItem.text);
+					//alert('src='+requestItem.src);
+					// requestItem.src = '';
+				} else  {
+					RunHTMLScript(requestItem);
+				}
+			}
+		}
+	};
+	
+	var VisualElement = function(container) {
+		alert('VisualElement start');
+		var divContent = container.childNodes;
+		var result = false;
+		if(divContent.length == 0) { 
+			alert('VisualElement1 :: false\n'+container.innerText); 
+			return false; 
+		}
+		for (var i = 0; i < divContent.length; i++) {
+			requestItem = divContent.item(i);
+			if (requestItem.tagName) {
+				// alert(requestItem.tagName);
+				if (requestItem.tagName.toUpperCase() == 'SCRIPT') { 
+				} else  {
+					result = VisualElement(requestItem);
+				}
+			}
+		}                                                                      
+		alert('VisualElement2 :: '+(result?'true':'false'));
+		return result;
+	};
+	
+	var GetHTML = function(link, vars, container) {
+		var req = null;
+		
+		var params = []; // 'name=' + encodeURIComponent(name) + '&surname=' + encodeURIComponent(surname)
+		var x = 0;
+		if(vars) {
+			for(var i in vars) {
+				if(typeof vars[i] == 'string') {
+					params[x++] = i + '=' + encodeURIComponent(vars[i]);
+				} else {
+					alert('typeof vars['+i+'] ='+typeof vars[i]);
+				}
+			}
+		}
+		params = params.join('&');
+		// alert('GetHTML('+link+')\nparams='+(params?params:null)+'\n');
+		try {
+			req = new XMLHttpRequest();
+			req.open("GET", link+'?'+Math.random(), true);
+		} catch(e) {
+			alert('req.open('+link+')\n'+e);
+			// throw new Error ( 'не смог открыть Ajax-запрос \n'+link );
+			return false;
+		}
+
+		req.setRequestHeader('Content-Type'    , 'application/x-www-form-urlencoded; charset=cp-1251');
+		req.setRequestHeader('X-Requested-With', 'XMLHttpRequest'                                    );
+		req.setRequestHeader('Accept'          , 'text/html, */*');
+		
+		req.onreadystatechange = function (xmlhttp, container) { return function() {
+			if (xmlhttp.readyState != 4) return false;
+			if (xmlhttp.status == 200) {
+				// ¬се ок
+				// alert('загрузил '+xmlhttp);
+				var c= '';
+				for(var d in xmlhttp) {
+					try {
+						if(d != 'onreadystatechange')
+							c = c + 'xmlhttp.'+d+'='+xmlhttp[d]+'\n';
+					} catch(e) { c= c + 'xmlhttp.'+d+'= "*** unreachable ***"\n' ; };
+				};
+				container.style.display = 'block';
+				container.processed = true;
+				// alert(c);
+				// alert('ResponseText: '+xmlhttp.responseText);
+				
+				container.innerHTML = '<small>test</small>'+(xmlhttp.responseText);
+				/*
+				if(VisualElement(container)) {
+					alert(xmlhttp.responseText+'\nсодержит ¬»«”јЋ№Ќџ≈ элементы');
+					container.style.display = 'block';
+				} else {
+					container.style.display = 'none';
+				} */
+				
+				RunHTMLScript(container);
+				
+			} else {
+				alert('Error: '+xmlhttp.statusText) // вызвать обработчик ошибки с текстом ответа
+			}
+		}}(req, container);
+		req.send(params?params:null);
+		/*		
+		if(req.status == 200) {
+			getHTML = req.responseText;
+		} else {
+			getHTML = false;
+		}
+		req = null;
+		*/
+		getHTML='';
+		return getHTML;	
+	};
+	
+	var /* private */ LoadDelayedBanners = function() {
+		if ( ! document.body ) {
+			setTimeout( LoadDelayedBanners , 1000);
+			// alert('DOM not ready');
+			return;
+		} else if(document.readyState == 'loaded') {
+			// alert('гружу банера / loaded');
+		} else if(document.readyState == 'interactive') {
+			// alert('гружу банера / interactive');
+		} else if(document.readyState == 'complete') {
+			// alert('гружу банера / complete');
+		} else if ( document.body ) {
+			// alert('DOM Ready');
+			
+		} else {
+			// setTimeout( arguments.calee , 1000);
+			setTimeout( LoadDelayedBanners , 1000);
+			return;
+		};
+		
+		var divs = document.getElementsByTagName('DIV');
+		// alert('стартую');
+		for(var i in divs) {
+			if(/delayedBanner/.test (divs[i].className) ) {
+				if(divs[i].id) {
+					if(divs[i].processed) {
+						/*
+						alert('['+i+'] '   + divs[i].className
+							+ '\ndisplay=' + divs[i].style.display
+							+ '\nALREADY LOADED'
+							);
+						*/
+						continue;
+					}
+					var debug = '';
+					/*
+					for(var i in document.location) {
+						try {
+							debug = debug + 'document.location.'+i+'='+document.location[i]+'\n';
+						} catch(e) {;};
+					};
+					*/
+					// alert(debug);
+					var url = /* document.location.protocol+'//'+document.location.host+ */ '/banners/'+divs[i].id+'.html'
+					// alert('trying '+url);
+					// var cHTML = GetHTML(url, null, divs[i]);
+					divs[i].processed = true;
+					divs[i].style.display = 'block';
+					
+					/*
+					divs[i].innerHTML = cHTML;
+					divs[i].style.display = 'block';
+					divs[i].processed = true;
+					
+					alert('['+i+'] '   + divs[i].className
+						+ '\ndisplay=' + divs[i].style.display
+						+ '\nid="'+divs[i].id
+						+ '\n'
+						+ '\n---------------------------------------------------------------'
+						+ '\n'+cHTML
+						+ '\n---------------------------------------------------------------'
+					);
+					*/
+					/* */
+				} else {
+					// alert(divs[i].style.display);
+					divs[i].style.display = 'block';
+				}
+			}
+		}
+		divs = null;
+	};
+
+	var makeShadow = function(oNode) {
+		try {
+			var pText = oNode.cloneNode(false);
+			pText.innerHTML = oNode.innerHTML;
+			var a = pText.getElementsByTagName('*');
+			for(var d=0; d < a.length; ++d) {
+				a[d].style.visibility = 'hidden'; // remove();
+			}
+			if(/date_tdrive_white/.test(oNode.className)) {
+				pText.className = 'date_tdrive_white_shadow';
+			} else {
+				pText.style.color = '#222222';
+				pText.style.position = 'absolute';
+				pText.style.right = '0px';
+				pText.style.top   = '6px';
+				pText.style.left = (oNode.offsetLeft+1)+'px';
+			}
+			oNode.parentNode.insertBefore(pText, oNode);
+			
+		} catch(e) {;};
+	};
+	
+	var makeDropShadow = function() {
+		var pInfo = document.getElementsByTagName('P');
+		var pText = new Array();      var f = 10;
+		for(var i = 0 ; i < pInfo.length; ++i) {
+			if(/info/.test(pInfo[i].className) ) {
+				pText[pText.length] = pInfo[i];
+				
+			} else if(/date_tdrive_white/.test(pInfo[i].className)) {
+				pText[pText.length] = pInfo[i];
+			}
+			
+			
+		};
+		
+		for(var i = 0; i < pText.length; ++i) {
+			makeShadow(pText[i]);
+		}
+		pInfo = null;
+	};
+	
+	var /* public */ init = function(timeout) {
+		initXMLHttpRequest();
+		makeDropShadow();
+		// alert('location.hash='+document.location.hash);
+		setTimeout(function() { 
+			if(document.location.hash == '#comment_add') {
+				try {
+					var comment_form = document.getElementById('full_block');
+					if(comment_form) {
+						//if(document.getElementById('full_block').style.display=='') {
+						//	document.getElementById('full_block').style.display='none';
+						//} else {
+							document.getElementById('full_block').style.display='';
+							document.getElementById('comment').focus();
+						//}
+						// comment_form = null;
+					}
+				} catch (e) { ; }
+			}
+		}
+		,100);
+		self.timeout = timeout ? timeout : self.timeout;
+		try {
+			// alert('1');
+			setTimeout(LoadDelayedBanners,5000); // 5 сек.
+		} catch(e){
+			alert(e);
+		}
+		// alert('pageObserver.init('+self.timeout+')');
+		// alert('document.'+document.st)
+	};
+	
+	return {
+		className: 'pageObserver',
+		init : init
+	};
+	
+} () ).init();
+
+
+
+
+
+

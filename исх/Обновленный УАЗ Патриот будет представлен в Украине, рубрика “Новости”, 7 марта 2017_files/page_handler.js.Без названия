@@ -1,0 +1,69 @@
+var xreziseHandlers = new Array();
+function addResizeHandler(handler)
+{
+	var index = xreziseHandlers.length;
+	xreziseHandlers[index] = handler;
+	return index;
+}
+function removeResizeHandler(handlerIndex)
+{
+	xreziseHandlers[handlerIndex] = undefined;
+}
+function xResizeWindow()
+{
+	for (i=0; i<xreziseHandlers.length; i++) {
+		if (xreziseHandlers[i] != undefined) {
+			xreziseHandlers[i]();
+		}
+	}
+}
+
+if(!window.addEvent) {
+	window.addEvent = function(event, handler, useCapture) {
+	    if (window.addEventListener)
+		{
+	        window.addEventListener(event, handler, useCapture ? useCapture : false);
+	    }
+		else if (window.attachEvent)
+		{
+	        window.attachEvent('on' + event, handler);
+	    }
+		else
+		{
+			alert("Add handler is not supported");
+		}
+	}
+}
+
+// alert(window.fireEvent);
+if(!window.fireEvent) {
+	window.fireEvent = function(event) {
+		if(typeof event == 'string' && event == 'resize')
+			xResizeWindow();
+		else
+			alert("fireEvent::"+event+"\n"+(typeof event));
+	}
+}
+
+window.addEvent('resize', xResizeWindow);
+
+var onloadHandlers = new Array();
+function addOnLoadHandler(handler)
+{
+	var index = onloadHandlers.length;
+	onloadHandlers[index] = handler;
+	return index;
+}
+function removeOnLoadHandler(handlerIndex)
+{
+	onloadHandlers[handlerIndex] = undefined;
+}
+function xOnLoadDocument() 
+{
+	for (i=0; i<onloadHandlers.length; i++) {
+		if (onloadHandlers[i] != undefined) {
+			onloadHandlers[i]();
+		}
+	}
+}
+
